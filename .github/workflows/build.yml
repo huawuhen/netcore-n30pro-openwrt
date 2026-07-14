@@ -66,6 +66,7 @@ jobs:
           OPENWRT="${{ runner.temp }}/openwrt"
           install -Dm644 dts/mt7981b-netcore-n30pro.dts "$OPENWRT/target/linux/mediatek/dts/mt7981b-netcore-n30pro.dts"
           install -Dm644 dts/mt7981b-netis-common.dtsi "$OPENWRT/target/linux/mediatek/dts/mt7981b-netis-common.dtsi"
+          install -Dm644 patches/9999-06-n30pro-mtk-hnat-event-definitions.patch "$OPENWRT/target/linux/mediatek/patches-6.6/9999-06-n30pro-mtk-hnat-event-definitions.patch"
           cat target/filogic-netcore-n30pro.mk >> "$OPENWRT/target/linux/mediatek/image/filogic.mk"
           install -Dm755 files/etc/uci-defaults/99-n30pro-defaults "$OPENWRT/files/etc/uci-defaults/99-n30pro-defaults"
 

@@ -1,0 +1,18 @@
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -36,3 +36,15 @@
+ #include "mtk_eth_soc.h"
+ #include "mtk_eth_dbg.h"
+ #include "mtk_wed.h"
++/*
++ * The vendor HNAT patchset in the pinned source uses these notifications,
++ * but does not provide its companion mtk_eth_reset.h header.  Keep these
++ * values aligned with the MediaTek Wi-Fi driver notification ABI.
++ */
++#define HIT_BIND_FORCE_TO_CPU 0x16
++#define MTK_FE_START_RESET 0x2000
++#define MTK_FE_RESET_DONE 0x2001
++#define MTK_WIFI_RESET_DONE 0x2002
++#define MTK_WIFI_CHIP_ONLINE 0x2003
++#define MTK_WIFI_CHIP_OFFLINE 0x2004
++#define MTK_FE_RESET_NAT_DONE 0x4001

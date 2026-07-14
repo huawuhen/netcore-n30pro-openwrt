@@ -42,6 +42,8 @@ The DTS and image definition are derived from
 which identifies the platform as MT7981B / 512 MB RAM / 128 MB SPI-NAND. The
 Action builds the `openwrt-24.10-6.6` branch of
 [padavanonly/immortalwrt-mt798x-6.6](https://github.com/padavanonly/immortalwrt-mt798x-6.6).
+It also applies a small compatibility patch for a missing set of MediaTek HNAT
+notification constants in that pinned source revision.
 
 Only flash the N30 Pro `sysupgrade.itb` image through a compatible bootloader
 or an existing compatible OpenWrt installation. Do not flash the generated
