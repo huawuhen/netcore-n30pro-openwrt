@@ -1,0 +1,19 @@
+--- a/binutils/readelf.c
++++ b/binutils/readelf.c
+@@ -372,7 +372,7 @@ start_offset_in_range (Elf_Off start)
+ static int
+ fseek64 (FILE * stream, Elf_Off offset, int whence)
+ {
+-  off64_t o = offset;
++  off_t o = offset;
+ 
+   if (sizeof (Elf_Off) <= sizeof (off_t))
+     return fseek (stream, o, whence);
+@@ -380,7 +380,7 @@ fseek64 (FILE * stream, Elf_Off offse
+   if (sizeof (Elf_Off) != sizeof (off_t)
+       || sizeof (off_t) != 8)
+     return fseek (stream, o, whence);
+-  return fseeko64 (stream, o, whence);
++  return fseeko (stream, o, whence);
+ }
+ 
