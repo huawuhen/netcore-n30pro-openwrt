@@ -4,6 +4,16 @@
 uci set network.lan.ipaddr='192.168.6.1'
 uci commit network
 
+# The N30 Pro radios and factory calibration data support 26 dBm. Keep the
+# regulatory domain explicit; mac80211 still enforces driver/channel limits.
+for radio in radio0 radio1; do
+	if uci -q get "wireless.${radio}" >/dev/null; then
+		uci set "wireless.${radio}.country=CN"
+		uci set "wireless.${radio}.txpower=26"
+	fi
+done
+uci commit wireless
+
 # Keep LuCI on plain HTTP only.  Removing the HTTPS listener also prevents a
 # later installed TLS module from exposing port 443 with the factory certificate.
 uci -q delete uhttpd.main.listen_https

@@ -73,6 +73,7 @@ jobs:
       - name: Add N30 Pro device support and first-boot settings
         run: |
           OPENWRT="${{ runner.temp }}/openwrt"
+          install -Dm644 patches/binutils-musl-compat.patch "$OPENWRT/package/devel/binutils/patches/999-musl-compat.patch"
           install -Dm644 dts/mt7981b-netcore-n30pro.dts "$OPENWRT/target/linux/mediatek/dts/mt7981b-netcore-n30pro.dts"
           install -Dm644 dts/mt7981b-netis-common.dtsi "$OPENWRT/target/linux/mediatek/dts/mt7981b-netis-common.dtsi"
           HNAT_PATCH="$OPENWRT/target/linux/mediatek/patches-6.6/9999-01-hnat.patch"
@@ -112,6 +113,8 @@ jobs:
           PY
           cat target/filogic-netcore-n30pro.mk >> "$OPENWRT/target/linux/mediatek/image/filogic.mk"
           install -Dm755 files/etc/uci-defaults/99-n30pro-defaults "$OPENWRT/files/etc/uci-defaults/99-n30pro-defaults"
+          install -Dm755 files/etc/board.d/03_n30pro_network "$OPENWRT/files/etc/board.d/03_n30pro_network"
+          install -Dm755 files/etc/hotplug.d/ieee80211/11_fix_wifi_mac_n30pro "$OPENWRT/files/etc/hotplug.d/ieee80211/11_fix_wifi_mac_n30pro"
 
       - name: Install official feeds and third-party package sources
         working-directory: ${{ runner.temp }}/openwrt
@@ -141,6 +144,10 @@ jobs:
             }
           done
           grep -q '^CONFIG_TARGET_DEVICE_mediatek_filogic_DEVICE_netcore_n30pro=y' .config
+          grep -q '^# CONFIG_SIGNATURE_CHECK is not set$' .config
+          test -f package/devel/binutils/patches/999-musl-compat.patch
+          grep -q 'compatible = "netcore,n30-pro"' target/linux/mediatek/dts/mt7981b-netcore-n30pro.dts
+          grep -q 'ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" "eth1"' files/etc/board.d/03_n30pro_network
 
       - name: Enable compiler cache
         run: |
