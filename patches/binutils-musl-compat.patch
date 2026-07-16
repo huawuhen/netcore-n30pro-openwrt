@@ -1,0 +1,26 @@
+--- a/binutils/readelf.c
++++ b/binutils/readelf.c
+@@ -372,7 +372,11 @@ static int
+ fseek64 (FILE * stream, long long offset, int whence)
+ {
++#ifdef off64_t
+   off64_t o = offset;
+   return fseeko64 (stream, o, whence);
++#else
++  return fseeko (stream, (off_t) offset, whence);
++#endif
+ }
+ 
+ static long long
+@@ -381,7 +385,11 @@ fseek64 (FILE * stream, long long offset, int whence)
+ static long long
+ ftell64 (FILE * stream)
+ {
++#ifdef off64_t
+   return ftello64 (stream);
++#else
++  return ftello (stream);
++#endif
+ }
+ 
+ static int
