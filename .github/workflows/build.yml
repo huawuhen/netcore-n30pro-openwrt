@@ -21,8 +21,6 @@ env:
   PASSWALL2_COMMIT: 5cded3821f7da942f1409eeaa28d0b2c31f55ba0
   PASSWALL_PACKAGES_REPOSITORY: https://github.com/Openwrt-Passwall/openwrt-passwall-packages.git
   PASSWALL_PACKAGES_COMMIT: 9d391e568d61c43be683b747b9ede811a61fc315
-  OPENCLASH_REPOSITORY: https://github.com/vernesong/OpenClash.git
-  OPENCLASH_COMMIT: 1c8e8cb8eaad0edaae11928c9b802b7d613c0f97
   TZ: Asia/Shanghai
 
 jobs:
@@ -128,7 +126,6 @@ jobs:
           ./scripts/feeds install -a
           fetch_checkout "$PASSWALL_PACKAGES_REPOSITORY" package/passwall-packages "$PASSWALL_PACKAGES_COMMIT"
           fetch_checkout "$PASSWALL2_REPOSITORY" package/passwall2 "$PASSWALL2_COMMIT"
-          fetch_checkout "$OPENCLASH_REPOSITORY" package/openclash "$OPENCLASH_COMMIT"
 
       - name: Apply and verify image configuration
         working-directory: ${{ runner.temp }}/openwrt
@@ -136,7 +133,7 @@ jobs:
           cp "$GITHUB_WORKSPACE/config/n30pro.config" .config
           make defconfig
           for package in \
-            luci luci-app-passwall2 luci-app-openclash sing-box xray-core \
+            luci luci-app-passwall2 xray-core \
             luci-app-ddns luci-app-upnp luci-app-samba4 luci-app-ttyd; do
             grep -q "^CONFIG_PACKAGE_${package}=y" .config || {
               echo "Required package is absent from the resolved configuration: ${package}"
@@ -171,7 +168,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ${{ runner.temp }}/openwrt/dl
-          key: openwrt-downloads-v1-${{ runner.os }}-${{ env.SOURCE_COMMIT }}-${{ env.PASSWALL2_COMMIT }}-${{ env.PASSWALL_PACKAGES_COMMIT }}-${{ env.OPENCLASH_COMMIT }}
+          key: openwrt-downloads-v1-${{ runner.os }}-${{ env.SOURCE_COMMIT }}-${{ env.PASSWALL2_COMMIT }}-${{ env.PASSWALL_PACKAGES_COMMIT }}
           restore-keys: |
             openwrt-downloads-v1-${{ runner.os }}-${{ env.SOURCE_COMMIT }}-
 
