@@ -73,6 +73,7 @@ jobs:
       - name: Add N30 Pro device support and first-boot settings
         run: |
           OPENWRT="${{ runner.temp }}/openwrt"
+          install -Dm644 patches/binutils-musl-compat.patch "$OPENWRT/toolchain/binutils/patches/2.42/999-musl-compat.patch"
           install -Dm644 patches/binutils-musl-compat.patch "$OPENWRT/package/devel/binutils/patches/999-musl-compat.patch"
           install -Dm644 dts/mt7981b-netcore-n30pro.dts "$OPENWRT/target/linux/mediatek/dts/mt7981b-netcore-n30pro.dts"
           install -Dm644 dts/mt7981b-netis-common.dtsi "$OPENWRT/target/linux/mediatek/dts/mt7981b-netis-common.dtsi"
@@ -145,6 +146,7 @@ jobs:
           done
           grep -q '^CONFIG_TARGET_DEVICE_mediatek_filogic_DEVICE_netcore_n30pro=y' .config
           grep -q '^# CONFIG_SIGNATURE_CHECK is not set$' .config
+          test -f toolchain/binutils/patches/2.42/999-musl-compat.patch
           test -f package/devel/binutils/patches/999-musl-compat.patch
           grep -q 'compatible = "netcore,n30-pro"' target/linux/mediatek/dts/mt7981b-netcore-n30pro.dts
           grep -q 'ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" "eth1"' files/etc/board.d/03_n30pro_network
@@ -166,9 +168,9 @@ jobs:
             ${{ runner.temp }}/openwrt/staging_dir/toolchain-*
             ${{ runner.temp }}/openwrt/build_dir/host
             ${{ runner.temp }}/openwrt/build_dir/toolchain-*
-          key: openwrt-toolchain-v2-${{ runner.os }}-${{ env.SOURCE_COMMIT }}-${{ hashFiles('config/n30pro.config', 'target/filogic-netcore-n30pro.mk') }}
+          key: openwrt-toolchain-v3-${{ runner.os }}-${{ env.SOURCE_COMMIT }}-${{ hashFiles('config/n30pro.config', 'target/filogic-netcore-n30pro.mk', 'patches/binutils-musl-compat.patch') }}
           restore-keys: |
-            openwrt-toolchain-v2-${{ runner.os }}-${{ env.SOURCE_COMMIT }}-
+            openwrt-toolchain-v3-${{ runner.os }}-${{ env.SOURCE_COMMIT }}-
 
       - name: Restore downloaded source cache
         id: downloads-cache
