@@ -5,9 +5,10 @@
 ## 固件功能
 
 - 支持中文界面的 LuCI，仅通过 **HTTP** 提供访问
-- PassWall2、Xray-core 和 v2ray-geodata
-- DDNS、UPnP、Samba4、ttyd、网络唤醒、流量统计和 AdGuard Home
-- USB 调制解调器及常用 USB 网络设备驱动
+- PassWall2，仅使用 Xray-core，并包含 v2ray-geodata
+- DDNS、UPnP、Samba4、ttyd、网络唤醒和流量统计
+- USB 3.0 存储、UAS、EXT4 文件系统和自动挂载支持
+- ZRAM 压缩交换空间
 
 初始设备设置：
 
