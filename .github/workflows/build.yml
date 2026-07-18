@@ -168,9 +168,10 @@ jobs:
             ${{ runner.temp }}/openwrt/staging_dir/toolchain-*
             ${{ runner.temp }}/openwrt/build_dir/host
             ${{ runner.temp }}/openwrt/build_dir/toolchain-*
-          key: openwrt-toolchain-v3-${{ runner.os }}-${{ env.SOURCE_COMMIT }}-${{ hashFiles('config/n30pro.config', 'target/filogic-netcore-n30pro.mk', 'patches/binutils-musl-compat.patch') }}
-          restore-keys: |
-            openwrt-toolchain-v3-${{ runner.os }}-${{ env.SOURCE_COMMIT }}-
+          # v4 deliberately invalidates the previously restored incomplete
+          # toolchain. Use exact-key restores only; a partial older cache can
+          # make the firmware step try to bootstrap GCC again.
+          key: openwrt-toolchain-v4-${{ runner.os }}-${{ env.SOURCE_COMMIT }}-${{ hashFiles('config/n30pro.config', 'target/filogic-netcore-n30pro.mk', 'patches/binutils-musl-compat.patch') }}
 
       - name: Restore downloaded source cache
         id: downloads-cache
@@ -203,23 +204,6 @@ jobs:
           make tools/install -j1 V=s
           make toolchain/install -j1 V=s
 
-      - name: Collect toolchain configure logs on failure
-        if: failure() && steps.toolchain-cache.outputs.cache-hit != 'true'
-        working-directory: ${{ runner.temp }}/openwrt
-        run: |
-          mkdir -p "$GITHUB_WORKSPACE/toolchain-logs"
-          find build_dir -type f -name config.log \
-            -exec cp --parents '{}' "$GITHUB_WORKSPACE/toolchain-logs/" \; || true
-
-      - name: Upload toolchain configure logs
-        if: failure() && steps.toolchain-cache.outputs.cache-hit != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: toolchain-config-logs-${{ github.run_id }}
-          path: toolchain-logs/
-          if-no-files-found: warn
-          retention-days: 7
-
       - name: Save OpenWrt toolchain cache
         if: steps.toolchain-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
@@ -244,6 +228,23 @@ jobs:
         run: |
           df -h
           make CONFIG_AUTOREMOVE=y -j"$(nproc)" || make CONFIG_AUTOREMOVE=y -j1 V=s
+
+      - name: Collect configure logs on failure
+        if: failure()
+        working-directory: ${{ runner.temp }}/openwrt
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/build-config-logs"
+          find build_dir -type f -name config.log \
+            -exec cp --parents '{}' "$GITHUB_WORKSPACE/build-config-logs/" \; || true
+
+      - name: Upload configure logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-config-logs-${{ github.run_id }}
+          path: build-config-logs/
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Prepare firmware files
         id: firmware
