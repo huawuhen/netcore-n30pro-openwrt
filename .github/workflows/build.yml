@@ -50,7 +50,7 @@ jobs:
             ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
             bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk \
             gettext gcc-multilib g++-multilib git gnutls-dev gperf haveged help2man intltool \
-            lib32gcc-s1 libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev \
+            lib32gcc-s1 libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libgmp-dev libisl-dev libltdl-dev \
             libmpc-dev libmpfr-dev libncurses-dev libpython3-dev libreadline-dev libssl-dev \
             libtool libyaml-dev libz-dev lld llvm lrzsz mkisofs msmtp ninja-build \
             p7zip p7zip-full patch pkgconf python3 python3-pip python3-ply python3-docutils \
@@ -198,8 +198,27 @@ jobs:
         if: steps.toolchain-cache.outputs.cache-hit != 'true'
         working-directory: ${{ runner.temp }}/openwrt
         run: |
-          make tools/install -j"$(nproc)"
-          make toolchain/install -j"$(nproc)"
+          # GCC bootstrap has a high memory peak. Keep this stage serial so a
+          # cache miss remains reliable on the standard GitHub-hosted runner.
+          make tools/install -j1 V=s
+          make toolchain/install -j1 V=s
+
+      - name: Collect toolchain configure logs on failure
+        if: failure() && steps.toolchain-cache.outputs.cache-hit != 'true'
+        working-directory: ${{ runner.temp }}/openwrt
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/toolchain-logs"
+          find build_dir -type f -name config.log \
+            -exec cp --parents '{}' "$GITHUB_WORKSPACE/toolchain-logs/" \; || true
+
+      - name: Upload toolchain configure logs
+        if: failure() && steps.toolchain-cache.outputs.cache-hit != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: toolchain-config-logs-${{ github.run_id }}
+          path: toolchain-logs/
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Save OpenWrt toolchain cache
         if: steps.toolchain-cache.outputs.cache-hit != 'true'
